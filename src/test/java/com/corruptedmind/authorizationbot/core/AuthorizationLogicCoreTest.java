@@ -9,7 +9,7 @@ class AuthorizationLogicCoreTest {
 
     @Test
     void handle_returnsEcho() {
-        String testMessage = "test";
+        String testMessage = "tet";
 
         AuthorizationLogicCore logicCore = new AuthorizationLogicCore();
         String result = logicCore.handle(new UserRequest(testMessage)).text();
