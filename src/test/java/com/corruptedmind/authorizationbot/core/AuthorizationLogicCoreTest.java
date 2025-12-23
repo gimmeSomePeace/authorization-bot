@@ -13,6 +13,6 @@ class AuthorizationLogicCoreTest {
 
         AuthorizationLogicCore logicCore = new AuthorizationLogicCore();
         String result = logicCore.handle(new UserRequest(testMessage)).text();
-        assertEquals("now", result);
+        assertEquals(testMessage, result);
     }
 }
