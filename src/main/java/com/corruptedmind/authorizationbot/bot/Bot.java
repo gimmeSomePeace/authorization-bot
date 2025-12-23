@@ -6,6 +6,10 @@ import com.corruptedmind.authorizationbot.model.UserRequest;
 import com.corruptedmind.authorizationbot.model.UserResponse;
 import com.corruptedmind.authorizationbot.output.OutputWriter;
 
+/**
+ * Основной бот, который слушает входящие сообщения и отправляет ответы.
+ * Использует InputReader для чтения запросов, LogicCore для обработки и OutputWriter для вывода.
+ */
 public class Bot {
     private final InputReader inputReader;
     private final OutputWriter outputWriter;
@@ -17,6 +21,12 @@ public class Bot {
         this.logicCore = logicCore;
     }
 
+    /**
+     * Запускает бесконечный цикл обработки сообщений:
+     * 1. читает запрос через InputReader
+     * 2. обрабатывает его через LogicCore
+     * 3. выводит ответ через OutputWriter
+     */
     public void listen() {
         while (true) {
             UserRequest userRequest = inputReader.read();
