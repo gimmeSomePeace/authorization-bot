@@ -1,5 +1,7 @@
 package com.corruptedmind.authorizationbot.state;
 
+import com.corruptedmind.authorizationbot.model.UserId;
+
 import java.util.HashMap;
 
 
@@ -20,11 +22,11 @@ public class UserStateManager {
      *         пользователь не был зарегистрирован в системе,
      *         возвращаем состояние приветствия
      */
-    public UserState getActiveState(String userId) {
-        return activeStates.getOrDefault(userId, UserState.IDLE);
+    public UserState getActiveState(UserId userId) {
+        return activeStates.getOrDefault(userId.getFullUserId(), UserState.IDLE);
     }
 
-    public void updateActiveState(String userId, UserState newState) {
-        activeStates.put(userId, newState);
+    public void updateActiveState(UserId userId, UserState newState) {
+        activeStates.put(userId.getFullUserId(), newState);
     }
 }

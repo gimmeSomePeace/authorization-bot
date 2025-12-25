@@ -1,4 +1,4 @@
 package com.corruptedmind.authorizationbot.model;
 
-public record UserResponse(String userId, String text) {
+public record UserResponse(UserId userId, String text) {
 }
