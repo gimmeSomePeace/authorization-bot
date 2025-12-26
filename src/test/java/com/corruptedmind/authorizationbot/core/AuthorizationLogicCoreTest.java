@@ -1,5 +1,6 @@
 package com.corruptedmind.authorizationbot.core;
 
+import com.corruptedmind.authorizationbot.model.UserId;
 import com.corruptedmind.authorizationbot.model.UserRequest;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +11,7 @@ class AuthorizationLogicCoreTest {
     @Test
     void handle_checkStateSwitching() {
         String testMessage = "test";
-        String testUserId = "CONSOLE_1";
+        UserId testUserId = new UserId("CONSOLE", "1");
 
         AuthorizationLogicCore logicCore = new AuthorizationLogicCore();
         String result = logicCore.handle(new UserRequest(testUserId, testMessage)).text();
