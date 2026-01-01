@@ -5,6 +5,7 @@ import com.corruptedmind.authorizationbot.model.UserRequest;
 
 public enum UserState {
     IDLE(new IdleState()),
+    LOGIN(new LoginState()),
     FINISHED(new FinishedState());
 
     private final UserStateHandler userStateHandler;
