@@ -17,7 +17,6 @@ public class LoginState implements UserStateHandler {
         GitHubRepository gitHubRepository = new GitHubRepository();
         DeviceAuthService deviceAuthService = new DeviceAuthService(gitHubRepository);
         DeviceIdResponse responseDeviceCode = deviceAuthService.requestDeviceCode();
-        System.out.println(responseDeviceCode);
 
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {

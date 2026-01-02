@@ -1,6 +1,9 @@
 package com.corruptedmind.authorizationbot.oauth;
 
 import com.corruptedmind.authorizationbot.oauth.dto.*;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.nimbusds.jose.shaded.gson.JsonObject;
+import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.device.*;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -8,6 +11,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
+import net.minidev.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,7 +43,7 @@ public class GitHubRepository {
             return new DeviceIdResponse(
                     success.getDeviceCode().getValue(),
                     success.getUserCode().getValue(),
-                    success.getVerificationURIComplete(),
+                    success.getVerificationURI(),
                     success.getLifetime(),
                     success.getInterval()
             );
@@ -61,7 +65,7 @@ public class GitHubRepository {
         httpRequest.setAccept("application/json");
         try {
             HTTPResponse httpResponse = httpRequest.send();
-            TokenResponse tokenResponse = TokenResponse.parse(httpResponse);
+            TokenResponse tokenResponse = TokenResponse.parse(httpResponse.getBodyAsJSONObject());
             if (tokenResponse.indicatesSuccess()) {
                 Tokens tokens = tokenResponse.toSuccessResponse().getTokens();
                 AccessToken accessToken = tokens.getAccessToken();

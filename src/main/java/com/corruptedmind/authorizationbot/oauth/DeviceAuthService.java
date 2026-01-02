@@ -39,7 +39,7 @@ public class DeviceAuthService {
         throw new IllegalStateException("Polling timeout exceed");
     }
 
-    private void sleep(int seconds) {
+    private void sleep(long seconds) {
         try {
             Thread.sleep(seconds * 1000L);
         } catch (InterruptedException e) {
