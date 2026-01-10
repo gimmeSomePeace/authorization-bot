@@ -1,55 +1,104 @@
 package com.corruptedmind.authorizationbot.state;
 
-import com.corruptedmind.authorizationbot.model.StateHandlerResult;
+import com.corruptedmind.authorizationbot.model.UserInfo;
 import com.corruptedmind.authorizationbot.model.UserRequest;
-import com.corruptedmind.authorizationbot.oauth.DeviceAuthService;
-import com.corruptedmind.authorizationbot.oauth.GitHubRepository;
+import com.corruptedmind.authorizationbot.model.UserResponse;
+import com.corruptedmind.authorizationbot.oauth.DeviceFlowProvider;
+import com.corruptedmind.authorizationbot.oauth.OAuthDeviceFlowService;
+import com.corruptedmind.authorizationbot.oauth.OAuthDeviceFlowRepository;
+import com.corruptedmind.authorizationbot.oauth.dto.AccessToken;
 import com.corruptedmind.authorizationbot.oauth.dto.DeviceIdResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 
 public class LoginState implements UserStateHandler {
 
     @Override
-    public StateHandlerResult handle(UserRequest userRequest) {
-        GitHubRepository gitHubRepository = new GitHubRepository();
-        DeviceAuthService deviceAuthService = new DeviceAuthService(gitHubRepository);
-        DeviceIdResponse responseDeviceCode = deviceAuthService.requestDeviceCode();
+    public UserResponse handle(UserRequest userRequest, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated) {
+        OAuthDeviceFlowRepository OAuthDeviceFlowRepository = getRepository(userRequest);
+        if (OAuthDeviceFlowRepository == null) return new UserResponse(userInfo.userId(), "Try one more time");
 
+        OAuthDeviceFlowService oAuthDeviceFlowService = new OAuthDeviceFlowService(OAuthDeviceFlowRepository);
+        DeviceIdResponse responseDeviceCode = oAuthDeviceFlowService.requestDeviceCode();
+
+        UserResponse response = createResponse(userInfo, responseDeviceCode);
+        CompletableFuture<AccessToken> future = requestAccessToken(oAuthDeviceFlowService, responseDeviceCode);
+        future.thenAccept(accessToken -> handleAccessToken(accessToken, userInfo, onUserInfoUpdated));
+
+        onUserInfoUpdated.accept(userInfo.builder().state(UserState.WAITING).build());
+        return response;
+    }
+
+    private UserResponse createResponse(UserInfo userInfo, DeviceIdResponse responseDeviceCode) {
+        return new UserResponse(
+                userInfo.userId(),
+                "Перейдите по адресу и авторизируйтесь: " + responseDeviceCode.verificationURI() +
+                        "\nКод подтверждения: " + responseDeviceCode.userCode());
+    }
+
+    private CompletableFuture<AccessToken> requestAccessToken(OAuthDeviceFlowService oAuthDeviceFlowService, DeviceIdResponse deviceCode) {
+        return CompletableFuture.supplyAsync(() -> oAuthDeviceFlowService.pollForToken(
+                deviceCode.deviceCode(),
+                deviceCode.interval(),
+                1000
+        ));
+    }
+
+    private void handleAccessToken(AccessToken accessToken, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated) {
+        String userData = fetchDataFromServer(accessToken);
+
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(responseDeviceCode.verificationURI());
-            }
-        } catch (IOException e) {
-            System.out.println(
-                    "Не удалось открыть ссылку в вашем браузере.\n" +
-                    "Попробуйте перейти по ссылке вручную: " + responseDeviceCode.verificationURI()
-            );
+            HashMap jsonResponse = mapper.readValue(userData, HashMap.class);
+            onUserInfoUpdated.accept(userInfo
+                    .builder()
+                    .token(accessToken)
+                    .state(UserState.FINISHED)
+                    .login((String) jsonResponse.get("login"))
+                    .build());
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Сервер вернул ответ неизвестного формата, невозможно преобразовать в Map: ", e);
         }
+    }
 
-        System.out.println("Ваш код:");
-        System.out.println(responseDeviceCode.userCode());
+    private String fetchDataFromServer(AccessToken accessToken) {
+        System.out.println("Access token: " + accessToken.value());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.github.com/user"))
+                .header("Authorization", "Bearer " + accessToken.value())
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return httpResponse.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
 
-        com.corruptedmind.authorizationbot.oauth.dto.AccessToken response = deviceAuthService.pollForToken(responseDeviceCode.deviceCode(), responseDeviceCode.interval(), 1000);
-        System.out.println("TOKEN: " + response.value());
-
-//            System.out.println("Access token: " + accessToken.getValue());
-//            HttpClient client = HttpClient.newHttpClient();
-//            HttpRequest request = HttpRequest.newBuilder()
-//                    .uri(URI.create("https://api.github.com/user"))
-//                    .header("Authorization", "Bearer" + accessToken.getValue())
-//                    .header("Accept", "application/json")
-//                    .GET()
-//                    .build();
-//
-//            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-//
-//            System.out.println("Данные пользователя: ");
-//            System.out.println(httpResponse.body());
-
-        return null;
-
+    private OAuthDeviceFlowRepository getRepository(UserRequest userRequest) {
+        switch (userRequest.text()) {
+            case "1" -> {
+                return new OAuthDeviceFlowRepository(DeviceFlowProvider.GITHUB.getConf());
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 }

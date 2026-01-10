@@ -1,8 +1,11 @@
 package com.corruptedmind.authorizationbot.state;
 
-import com.corruptedmind.authorizationbot.model.StateHandlerResult;
+import com.corruptedmind.authorizationbot.model.UserInfo;
 import com.corruptedmind.authorizationbot.model.UserRequest;
+import com.corruptedmind.authorizationbot.model.UserResponse;
+
+import java.util.function.Consumer;
 
 public interface UserStateHandler {
-    StateHandlerResult handle(UserRequest userRequest);
+    UserResponse handle(UserRequest userRequest, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated);
 }

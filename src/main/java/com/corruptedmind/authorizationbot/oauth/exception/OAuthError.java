@@ -1,4 +1,4 @@
-package com.corruptedmind.authorizationbot.oauth.dto;
+package com.corruptedmind.authorizationbot.oauth.exception;
 
 public record OAuthError(
         String code,

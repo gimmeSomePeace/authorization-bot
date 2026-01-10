@@ -1,9 +1,7 @@
 package com.corruptedmind.authorizationbot.oauth;
 
 import com.corruptedmind.authorizationbot.oauth.dto.*;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.nimbusds.jose.shaded.gson.JsonObject;
-import com.nimbusds.jose.shaded.gson.JsonParser;
+import com.corruptedmind.authorizationbot.oauth.exception.OAuthError;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.device.*;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -11,20 +9,20 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
-import net.minidev.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URI;
 
 
-public class GitHubRepository {
-    private static final URI DEVICE_ENDPOINT = URI.create("https://github.com/login/device/code");
-    private static final URI TOKEN_ENDPOINT = URI.create("https://github.com/login/oauth/access_token");
+public class OAuthDeviceFlowRepository {
+    private final OAuthConf conf;
 
+    public OAuthDeviceFlowRepository(OAuthConf conf) {
+        this.conf = conf;
+    }
 
-    public DeviceIdResponse requestDeviceCode(DeviceIdRequest deviceIdRequest) {
-        ClientID clientID = new ClientID(deviceIdRequest.clientId());
-        DeviceAuthorizationRequest request = new DeviceAuthorizationRequest(DEVICE_ENDPOINT, clientID);
+    public DeviceIdResponse requestDeviceCode() {
+        ClientID clientID = new ClientID(conf.clientId());
+        DeviceAuthorizationRequest request = new DeviceAuthorizationRequest(conf.deviceEndpoint(), clientID);
 
         HTTPRequest httpRequest = request.toHTTPRequest();
         httpRequest.setAccept("application/json");
@@ -54,11 +52,11 @@ public class GitHubRepository {
         }
     }
 
-    public TokenResult pollForToken(PollForTokenRequest request) {
-        AuthorizationGrant grant = new DeviceCodeGrant(new DeviceCode(request.deviceCode()));
-        TokenRequest tokenRequest = new TokenRequest(
-                TOKEN_ENDPOINT,
-                new ClientID(request.clientId()),
+    public TokenResult pollForToken(String deviceCode) {
+        AuthorizationGrant grant = new DeviceCodeGrant(new DeviceCode(deviceCode));
+        com.nimbusds.oauth2.sdk.TokenRequest tokenRequest = new com.nimbusds.oauth2.sdk.TokenRequest(
+                conf.tokenEndpoint(),
+                new ClientID(conf.clientId()),
                 grant
         );
         HTTPRequest httpRequest = tokenRequest.toHTTPRequest();

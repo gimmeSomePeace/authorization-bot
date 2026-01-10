@@ -3,27 +3,20 @@ package com.corruptedmind.authorizationbot.oauth;
 import com.corruptedmind.authorizationbot.oauth.dto.*;
 
 
+public class OAuthDeviceFlowService {
+    private final OAuthDeviceFlowRepository authRepository;
 
-public class DeviceAuthService {
-    private static final String CLIENT_ID = "Ov23lioD7BEANVIXUfVn";
-    private final GitHubRepository authRepository;
-
-    public DeviceAuthService(GitHubRepository authRepository) {
+    public OAuthDeviceFlowService(OAuthDeviceFlowRepository authRepository) {
         this.authRepository = authRepository;
     }
 
     public DeviceIdResponse requestDeviceCode() {
-        DeviceIdRequest deviceIdRequest = new DeviceIdRequest(CLIENT_ID);
-        return authRepository.requestDeviceCode(deviceIdRequest);
+        return authRepository.requestDeviceCode();
     }
 
     public AccessToken pollForToken(String deviceCode, long intervalSeconds, int maxAttempts) {
-        PollForTokenRequest request = new PollForTokenRequest(
-                CLIENT_ID,
-                deviceCode
-        );
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            TokenResult result = authRepository.pollForToken(request);
+            TokenResult result = authRepository.pollForToken(deviceCode);
             switch (result) {
                 case TokenResult.Success success:
                         return success.token();
