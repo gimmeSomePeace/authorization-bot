@@ -11,7 +11,7 @@ public class UserInfoTest {
     @Test
     void testUserInfoCreation() {
         UserId userId = mock(UserId.class);
-        String login = mock(String.class);
+        String login = "test-login";
         AccessToken accessToken = mock(AccessToken.class);
         UserState userState = mock(UserState.class);
 
@@ -33,7 +33,7 @@ public class UserInfoTest {
     @Test
     void testUserInfoBuilderDefaultValues() {
         UserId userId = mock(UserId.class);
-        String login = mock(String.class);
+        String login = "test-login";
 
         UserInfo userInfo = new UserInfo.Builder()
                 .id(userId)

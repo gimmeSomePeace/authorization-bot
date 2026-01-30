@@ -14,7 +14,7 @@ import com.corruptedmind.authorizationbot.state.UserState;
 public class Main {
     public static void main(String[] args) {
         // Создаем абстракции устройств ввода/вывода
-        InputReader inputReader = new ConsoleInputReader(); // Реализация для чтения с консоли
+        InputReader inputReader = new ConsoleInputReader(System.in); // Реализация для чтения с консоли
         OutputWriter outputWriter = new ConsoleOutputWriter(); // Реализация для вывода в консоль
 
         // Инициализация менеджера информации о пользователе

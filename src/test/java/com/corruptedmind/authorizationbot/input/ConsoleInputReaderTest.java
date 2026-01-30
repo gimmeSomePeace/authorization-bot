@@ -4,23 +4,23 @@ import com.corruptedmind.authorizationbot.model.UserRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 public class ConsoleInputReaderTest {
     private static ConsoleInputReader inputReader;
 
     @BeforeAll
     static void setUp() {
-        inputReader = new ConsoleInputReader();
     }
 
     @Test
     void testRead() {
         // Подготавливаем ввод
-        String input = mock(String.class);
-        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        String input = "test-value";
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        inputReader = new ConsoleInputReader(in);
 
         UserRequest userRequest = inputReader.read();
 
