@@ -2,14 +2,19 @@ package com.corruptedmind.authorizationbot.input;
 
 import com.corruptedmind.authorizationbot.model.UserId;
 import com.corruptedmind.authorizationbot.model.UserRequest;
+
+import java.io.InputStream;
 import java.util.Scanner;
 
+/**
+ * Реализация {@link InputReader} для чтения с консоли
+ */
 public class ConsoleInputReader implements InputReader {
     private final Scanner scanner;
     public static final String ID_PREFIX = "CONSOLE";
 
-    public ConsoleInputReader() {
-        scanner = new Scanner(System.in);
+    public ConsoleInputReader(InputStream in) {
+        scanner = new Scanner(in);
     }
 
     @Override

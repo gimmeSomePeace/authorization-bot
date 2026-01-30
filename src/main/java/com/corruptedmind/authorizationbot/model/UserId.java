@@ -12,6 +12,20 @@ public record UserId(String platformPrefix, String platformUserId) {
     public static final String separator = "_";
 
     /**
+     * Конструктор, проверяющий инварианты
+     * @throws IllegalArgumentException если хотя бы одно из полей пустое
+     */
+    public UserId {
+        // Проверка на пустоту полей
+        if (platformPrefix == null || platformPrefix.isEmpty()) {
+            throw new IllegalArgumentException("platformPrefix не может быть пустым");
+        }
+        if (platformUserId == null || platformUserId.isEmpty()) {
+            throw new IllegalArgumentException("platformUserId не может быть пустым");
+        }
+    }
+
+    /**
      * Возвращает полный идентификатор пользователя с префиксом платформы
      */
     public String getFullUserId() {

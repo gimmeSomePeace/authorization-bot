@@ -12,6 +12,16 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.12.0'
+
+    // Основная библиотека для OAuth2 / OIDC
+    implementation 'com.nimbusds:oauth2-oidc-sdk:11.11'
+
+    // Библиотека для работы с JWT
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
 }
 
 test {
