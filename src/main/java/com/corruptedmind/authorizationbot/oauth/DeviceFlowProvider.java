@@ -6,7 +6,8 @@ public enum DeviceFlowProvider {
     GITHUB(new OAuthConf(
             "Ov23lioD7BEANVIXUfVn",
             URI.create("https://github.com/login/device/code"),
-            URI.create("https://github.com/login/oauth/access_token")
+            URI.create("https://github.com/login/oauth/access_token"),
+            URI.create("https://api.github.com/user")
     ));
 
     private final OAuthConf conf;

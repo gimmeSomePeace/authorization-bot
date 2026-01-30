@@ -13,13 +13,19 @@ import com.corruptedmind.authorizationbot.state.UserState;
 
 public class Main {
     public static void main(String[] args) {
-        InputReader inputReader = new ConsoleInputReader();
-        OutputWriter outputWriter = new ConsoleOutputWriter();
+        // Создаем абстракции устройств ввода/вывода
+        InputReader inputReader = new ConsoleInputReader(); // Реализация для чтения с консоли
+        OutputWriter outputWriter = new ConsoleOutputWriter(); // Реализация для вывода в консоль
 
+        // Инициализация менеджера информации о пользователе
         UserInfoManager userInfoManager = new UserInfoManager(UserState.IDLE);
+        // Создание основного логического ядра приложения.
+        // OAuthDeviceFlowLogicCore реализует логику авторизации на сервисах через OAuth Device Flow
         LogicCore logicCore = new OAuthDeviceFlowLogicCore(userInfoManager);
 
+        // Создаем бота и передаем все зависимости через механизм Dependency Injection
         Bot bot = new Bot(logicCore, inputReader, outputWriter);
+        // Входим в состояние ожидания сообщений от пользователей
         bot.listen();
     }
 }

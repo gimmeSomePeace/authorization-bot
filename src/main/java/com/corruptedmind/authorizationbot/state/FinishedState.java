@@ -10,8 +10,8 @@ public class FinishedState implements UserStateHandler {
     @Override
     public UserResponse handle(UserRequest userRequest, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated) {
         if (userRequest.text().equals("q")) {
-            onUserInfoUpdated.accept(new UserInfo(userInfo.userId(), null, null, UserState.IDLE));
-            return new UserResponse(userInfo.userId(), "Вы успешно вышли из аккаунта");
+            onUserInfoUpdated.accept(new UserInfo(userInfo.id(), null, null, UserState.IDLE));
+            return new UserResponse(userInfo.id(), "Вы успешно вышли из аккаунта");
         }
        return new UserResponse(
                userRequest.userId(),

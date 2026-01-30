@@ -3,19 +3,39 @@ package com.corruptedmind.authorizationbot.model;
 import com.corruptedmind.authorizationbot.oauth.dto.AccessToken;
 import com.corruptedmind.authorizationbot.state.UserState;
 
-public record UserInfo(UserId userId, String login, AccessToken token, UserState state) {
+/**
+ * Представляет информацию о пользователе
+ * @param id уникальный идентификатор пользователя
+ * @param login логин пользователя
+ * @param token токен доступа, используемый для аутентификации
+ * @param state описывает стадию диалога с пользователем на платформе. Реализовано через паттерн State
+ */
+public record UserInfo(UserId id, String login, AccessToken token, UserState state) {
+    /**
+     * Возвращает новый экземпляр {@link Builder}, с помощью которого можно построить объект {@link UserInfo}
+     * @return {@link Builder} для создания объекта {@link UserInfo}
+     */
     public Builder builder() {
         return new Builder(this);
     }
 
+    /**
+     * Реализация паттерна Builder для создания объектов {@link UserInfo}
+     */
     public static class Builder {
         private UserId userId;
         private String login;
         private AccessToken accessToken;
         private UserState userState;
 
+        public Builder() {}
+
+        /**
+         * Конструктор, создающий новый Builder с начальными значениями из существующего {@link UserInfo}
+         * @param userInfo экземпляр {@link UserInfo}, из которого копируются значения
+         */
         public Builder(UserInfo userInfo) {
-            userId = userInfo.userId;
+            userId = userInfo.id;
             login = userInfo.login;
             accessToken = userInfo.token;
             userState = userInfo.state;

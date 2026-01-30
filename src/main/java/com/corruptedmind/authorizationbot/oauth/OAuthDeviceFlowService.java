@@ -1,6 +1,12 @@
 package com.corruptedmind.authorizationbot.oauth;
 
+import com.corruptedmind.authorizationbot.model.UserInfo;
 import com.corruptedmind.authorizationbot.oauth.dto.*;
+import com.corruptedmind.authorizationbot.state.UserState;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.HashMap;
 
 
 public class OAuthDeviceFlowService {
@@ -30,6 +36,21 @@ public class OAuthDeviceFlowService {
             }
         }
         throw new IllegalStateException("Polling timeout exceed");
+    }
+
+    public UserInfo getUserInfo(AccessToken accessToken) {
+        String rawUserInfo = authRepository.getUserInfo(accessToken);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            HashMap jsonResponse = mapper.readValue(rawUserInfo, HashMap.class);
+            return new UserInfo.Builder()
+                    .state(UserState.FINISHED)
+                    .login((String) jsonResponse.get("login"))
+                    .build();
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Сервер вернул ответ неизвестного формата, невозможно преобразовать в Map: ", e);
+        }
     }
 
     private void sleep(long seconds) {

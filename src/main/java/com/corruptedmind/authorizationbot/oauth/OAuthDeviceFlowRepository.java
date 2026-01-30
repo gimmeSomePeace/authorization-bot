@@ -11,6 +11,9 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 
 public class OAuthDeviceFlowRepository {
@@ -87,6 +90,30 @@ public class OAuthDeviceFlowRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Получает данные о пользователе, используя access token
+     * @param accessToken токен для аутентификации пользователя на сервисе
+     * @return данные о пользователе, полученные от сервиса
+     */
+    public String getUserInfo(com.corruptedmind.authorizationbot.oauth.dto.AccessToken accessToken) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(conf.userInfoEndpoint())
+                .header("Authorization", "Bearer " + accessToken.value())
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return httpResponse.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }

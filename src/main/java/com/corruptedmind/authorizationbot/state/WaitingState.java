@@ -10,7 +10,7 @@ public class WaitingState implements UserStateHandler {
     @Override
     public UserResponse handle(UserRequest userRequest, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated) {
          return new UserResponse(
-                 userInfo.userId(),
+                 userInfo.id(),
                  "Для продолжения работы приложения завершите авторизацию на сервисе"
          );
     }
