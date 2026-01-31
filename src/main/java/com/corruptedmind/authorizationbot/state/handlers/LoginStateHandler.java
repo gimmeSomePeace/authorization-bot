@@ -1,4 +1,4 @@
-package com.corruptedmind.authorizationbot.state;
+package com.corruptedmind.authorizationbot.state.handlers;
 
 import com.corruptedmind.authorizationbot.model.UserInfo;
 import com.corruptedmind.authorizationbot.model.UserRequest;
@@ -8,6 +8,8 @@ import com.corruptedmind.authorizationbot.oauth.OAuthDeviceFlowService;
 import com.corruptedmind.authorizationbot.oauth.OAuthDeviceFlowRepository;
 import com.corruptedmind.authorizationbot.oauth.dto.AccessToken;
 import com.corruptedmind.authorizationbot.oauth.dto.DeviceIdResponse;
+import com.corruptedmind.authorizationbot.state.UserState;
+import com.corruptedmind.authorizationbot.state.UserStateHandler;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +20,7 @@ import java.util.function.Consumer;
  * Состояние, в котором пользователь выбирает сервис
  * для авторизации через OAuth Device Flow.
  */
-public class LoginState implements UserStateHandler {
+public class LoginStateHandler implements UserStateHandler {
 
     @Override
     public UserResponse handle(UserRequest userRequest, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated) {

@@ -1,6 +1,8 @@
 package com.corruptedmind.authorizationbot.core;
 
 import com.corruptedmind.authorizationbot.model.*;
+import com.corruptedmind.authorizationbot.state.UserState;
+import com.corruptedmind.authorizationbot.state.UserStateRouter;
 
 /**
  * Это ядро выполняет основную задачу — организует диалог с пользователем,
@@ -10,9 +12,11 @@ import com.corruptedmind.authorizationbot.model.*;
 public class OAuthDeviceFlowLogicCore implements LogicCore {
     // объект, необходимый для хранения и изменения данных о пользователе
     private final UserInfoManager userInfoManager;
+    private final UserStateRouter stateRouter;
 
-    public OAuthDeviceFlowLogicCore(UserInfoManager userInfoManager) {
+    public OAuthDeviceFlowLogicCore(UserInfoManager userInfoManager, UserStateRouter stateRouter) {
         this.userInfoManager = userInfoManager;
+        this.stateRouter = stateRouter;
     }
 
     /**
@@ -23,7 +27,8 @@ public class OAuthDeviceFlowLogicCore implements LogicCore {
     @Override
     public UserResponse handle(UserRequest userRequest) {
         UserInfo userInfo = userInfoManager.getUserInfo(userRequest.userId());
-        return userInfo.state().handle(userRequest, userInfo, this::onUserInfoUpdate);
+        UserState userState = userInfo.state();
+        return stateRouter.getHandler(userState).handle(userRequest, userInfo, this::onUserInfoUpdate);
     }
 
     /**
