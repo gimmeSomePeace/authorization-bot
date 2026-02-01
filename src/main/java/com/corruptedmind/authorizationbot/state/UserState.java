@@ -1,35 +1,18 @@
 package com.corruptedmind.authorizationbot.state;
 
-import com.corruptedmind.authorizationbot.model.UserInfo;
-import com.corruptedmind.authorizationbot.model.UserRequest;
-import com.corruptedmind.authorizationbot.model.UserResponse;
-
-import java.util.function.Consumer;
 
 /**
- * Описывает стадию диалога с пользователем. Каждая запись хранит в себе класс-обработчик состояния
+ * Описывает стадию диалога с пользователем
+ * Каждое состояние соответствует определенному этапу взаимодействия пользователя с приложением
  */
 public enum UserState {
-    IDLE(new IdleState()),
-    LOGIN(new LoginState()),
-    WAITING(new WaitingState()),
-    FINISHED(new FinishedState());
-
-    // класс-обработчик
-    private final UserStateHandler userStateHandler;
-
-    UserState(UserStateHandler userStateHandler) {
-        this.userStateHandler = userStateHandler;
-    }
-
-    /**
-     * Делегирует обработку пользовательского запроса {@link UserStateHandler}
-     * @param userRequest входящий запрос пользователя
-     * @param userInfo текущая информация о пользователе
-     * @param onUserInfoUpdated callback, вызываемый при обновлении {@link UserInfo}
-     * @return ответ пользователю
-     */
-    public UserResponse handle(UserRequest userRequest, UserInfo userInfo, Consumer<UserInfo> onUserInfoUpdated) {
-        return userStateHandler.handle(userRequest, userInfo, onUserInfoUpdated);
-    }
+    /** Пользователь не активен, вход в аккаунт не выполнен */
+    IDLE,
+    /** Пользователь выбирает сервис для авторизации */
+    LOGIN,
+    /** Пользователь выполняет действия по авторизации на сервисе, система ожидает */
+    WAITING,
+    /** Вход выполнен, пользователю выводится сообщение с его данными.
+     *  Может выйти из аккаунта и тем самым вернуться на стадию IDLE */
+    FINISHED
 }
