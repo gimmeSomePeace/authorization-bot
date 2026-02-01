@@ -1,5 +1,6 @@
 package com.corruptedmind.authorizationbot.input;
 
+import com.corruptedmind.authorizationbot.core.Event.UserMessageEvent;
 import com.corruptedmind.authorizationbot.model.UserId;
 import com.corruptedmind.authorizationbot.model.UserRequest;
 
@@ -25,6 +26,7 @@ public class ConsoleInputReader implements InputReader {
         do {
             line =  scanner.nextLine().trim();
         } while (line.isEmpty());
+
         return new UserRequest(userId, line);
     }
 }

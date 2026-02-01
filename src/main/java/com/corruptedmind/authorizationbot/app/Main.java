@@ -7,6 +7,9 @@ import com.corruptedmind.authorizationbot.core.LogicCore;
 import com.corruptedmind.authorizationbot.input.ConsoleInputReader;
 import com.corruptedmind.authorizationbot.input.InputReader;
 import com.corruptedmind.authorizationbot.model.UserInfoManager;
+import com.corruptedmind.authorizationbot.oauth.DeviceFlowProvider;
+import com.corruptedmind.authorizationbot.oauth.DeviceFlowSelector;
+import com.corruptedmind.authorizationbot.oauth.OAuthConf;
 import com.corruptedmind.authorizationbot.output.ConsoleOutputWriter;
 import com.corruptedmind.authorizationbot.output.OutputWriter;
 import com.corruptedmind.authorizationbot.state.*;
@@ -15,12 +18,16 @@ import com.corruptedmind.authorizationbot.state.handlers.IdleStateHandler;
 import com.corruptedmind.authorizationbot.state.handlers.LoginStateHandler;
 import com.corruptedmind.authorizationbot.state.handlers.WaitingStateHandler;
 
+import java.net.URI;
 import java.util.EnumMap;
 
 /**
  * Главный класс приложения. Отвечает за инициализацию всех компонентов и запуск бота
  */
 public class Main {
+    // Команда для выхода из аккаунта
+    private static final String QUIT_COMMAND = "q";
+    private static final int MAX_ATTEMPTS_FOR_POLLING_TOKEN = 1000;
 
     /**
      * Формирует полное соответствие между состояниями пользователя и их обработчиками.
@@ -28,13 +35,25 @@ public class Main {
      * @return EnumMap с обработчиками для всех состояний
      */
     private static EnumMap<UserState, UserStateHandler> fullStateMap() {
+        OAuthConf gitHubConf = new OAuthConf(
+                "Ov23lioD7BEANVIXUfVn",
+                URI.create("https://github.com/login/device/code"),
+                URI.create("https://github.com/login/oauth/access_token"),
+                URI.create("https://api.github.com/user")
+        );
+        DeviceFlowProvider[] providers = new DeviceFlowProvider[] {
+                new DeviceFlowProvider(gitHubConf, "GitHub")
+        };
+        DeviceFlowSelector selector = new DeviceFlowSelector(providers);
+
+
         EnumMap<UserState, UserStateHandler> userStateMap = new EnumMap<>(UserState.class);
         for (UserState state: UserState.values()) {
             userStateMap.put(state, switch (state) {
-                case IDLE -> new IdleStateHandler();
-                case LOGIN -> new LoginStateHandler();
+                case IDLE -> new IdleStateHandler(selector);
+                case LOGIN -> new LoginStateHandler(selector, MAX_ATTEMPTS_FOR_POLLING_TOKEN);
                 case WAITING -> new WaitingStateHandler();
-                case FINISHED -> new FinishedStateHandler();
+                case FINISHED -> new FinishedStateHandler(QUIT_COMMAND);
             });
         }
         return userStateMap;
@@ -54,7 +73,7 @@ public class Main {
 
         // Создание основного логического ядра приложения.
         // OAuthDeviceFlowLogicCore реализует логику авторизации на сервисах через OAuth Device Flow
-        return new OAuthDeviceFlowLogicCore(userInfoManager, stateRouter);
+        return new OAuthDeviceFlowLogicCore(stateRouter, userInfoManager);
     }
 
     /**

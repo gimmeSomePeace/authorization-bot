@@ -1,11 +1,11 @@
 package com.corruptedmind.authorizationbot.core;
 
-import com.corruptedmind.authorizationbot.model.UserRequest;
-import com.corruptedmind.authorizationbot.model.UserResponse;
+
+import java.util.List;
 
 /**
  * Основа приложения. Обрабатывает запросы от пользователя и формирует на их основе ответ.
  */
 public interface LogicCore {
-    UserResponse handle(UserRequest userRequest);
+    List<Action> handle(Event event);
 }
