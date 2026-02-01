@@ -43,6 +43,7 @@ public class OAuthExecutorTest {
         when(action.service()).thenReturn(service);
         when(action.deviceCode()).thenReturn(deviceCode);
         when(action.userId()).thenReturn(userId);
+        when(action.maxAttempts()).thenReturn(maxAttemptsForPollingToken);
 
         when(deviceCode.deviceCode()).thenReturn(rawDeviceCode);
         when(deviceCode.interval()).thenReturn(interval);
